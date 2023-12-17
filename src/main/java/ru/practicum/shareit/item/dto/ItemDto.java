@@ -1,7 +1,29 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.Builder;
+import lombok.Data;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.user.dto.UserWithoutEmailDto;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
- * TODO Sprint add-controllers.
+ * DTO Item. В поле owner конфеденциальные данные (email) не передается
  */
+@Data
+@Builder
 public class ItemDto {
+
+    private long id;
+    @NotBlank(groups = {OnCreateGroup.class})
+    private String name;
+    @NotBlank(groups = {OnCreateGroup.class})
+    private String description;
+    @NotNull(groups = OnCreateGroup.class)
+    private Boolean available;
+    @Valid
+    private UserWithoutEmailDto owner;
+    private ItemRequestDto request;
 }
