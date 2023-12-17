@@ -39,8 +39,9 @@ public class ItemValidator {
         }
         Item item = itemMapper.dtoToModel(itemDto);
         User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        Long id = user.getId();
         if (item.getOwner() == null) item.setOwner(user);
-        else if (user.getId() != item.getOwner().getId()) {
+        else if (id != item.getOwner().getId()) {
             log.warn("Юзер с id: {} создавать и обновлять только о своей вещи");
             throw new FormatDataException("Юзер с id: " + userId.get()
                     + " может создавать и обновлять только о своей вещи");
