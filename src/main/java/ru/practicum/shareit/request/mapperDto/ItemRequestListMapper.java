@@ -9,5 +9,4 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = ItemRequestMapper.class)
 public interface ItemRequestListMapper {
     List<ItemRequest> dtosToModels(List<ItemRequestDto> dtos);
-  //  List<ItemRequestDto> modelsToDtos(List<ItemRequest> itemRequests);
 }

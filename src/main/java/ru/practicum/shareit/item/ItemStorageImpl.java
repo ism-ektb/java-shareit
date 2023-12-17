@@ -101,8 +101,8 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public List<Item> getItems(Long userId) {
         if (userId == null) return new ArrayList<>(itemMap.values());
-        return itemMap.values().stream().
-                filter(i -> i.getOwner().getId().equals(userId))
+        return itemMap.values().stream()
+                .filter(i -> i.getOwner().getId().equals(userId))
                 .collect(Collectors.toList());
     }
 

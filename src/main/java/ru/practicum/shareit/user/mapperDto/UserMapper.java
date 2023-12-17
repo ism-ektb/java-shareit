@@ -11,7 +11,8 @@ public interface UserMapper {
 
     UserDto modelToDto(User user);
 
-    UserWithoutEmailDto modelToDtoWithoutEmail(User user);
+    UserWithoutEmailDto modelToDtoWithoutEmail (User user);
+
     User dtoWithoutEmailToModel (UserWithoutEmailDto userWithoutEmailDto);
 
 }

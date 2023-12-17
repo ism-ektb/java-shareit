@@ -17,13 +17,13 @@ public class ErrorHandler {
 
     @ExceptionHandler(NoFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse noFoundException(final NoFoundException e) {
+    public ErrorResponse onFoundException(final NoFoundException e) {
         return new ErrorResponse(List.of(new Error("error", e.getMessage())));
     }
 
     @ExceptionHandler(FormatDataException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse FormatError(final FormatDataException e) {
+    public ErrorResponse onFormatError(final FormatDataException e) {
         return new ErrorResponse(List.of(new Error("error", e.getMessage())));
     }
 

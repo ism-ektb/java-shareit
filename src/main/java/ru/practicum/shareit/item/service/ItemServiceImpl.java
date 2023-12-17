@@ -67,6 +67,7 @@ public class ItemServiceImpl implements ItemService {
         itemValidator.checkGetRequest(userId);
         return itemMapper.modelToDto(itemStorage.getItemOfId(itemId));
     }
+
     /**
      * Метод возвращает список объектов у которых поле Owner соответствет преданному параметру
      *
