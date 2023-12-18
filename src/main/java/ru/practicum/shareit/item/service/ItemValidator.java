@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.FormatDataException;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dtoMapper.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
 
@@ -20,28 +17,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemValidator {
-    private final ItemMapper itemMapper;
-    private final UserService userService;
-    private final UserMapper userMapper;
 
     /**
      * Метод для проверки объектов класса ItemDto передаваемых в методы create() и update()
      * на сообветсвие "бизнес-логике"
      *
-     * @return уже сконвертированный объект класса Item
      * @throws FormatDataException если юзер добавляющий объекты не зарегистрирован
      *                             или пользователь пытается добавить (изменить) чужие объекты
      */
-    public Item checkCreateAndPatch(ItemDto itemDto, Optional<Long> userId) {
+    public void checkCreateAndPatch(Optional<Long> userId) {
         if (userId.isEmpty()) {
             log.warn("Добавлять и обновлять вещи вещи могут только зарегистрированные юзеры");
             throw new FormatDataException("Добавлять и обновлять вещи могут только зарегистрированные юзеры");
         }
-        Item item = itemMapper.dtoToModel(itemDto);
-        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
-        //если будет несоответсвие полей объектов Owner и User из памяти
-        item.setOwner(user);
-        return item;
     }
 
     /**

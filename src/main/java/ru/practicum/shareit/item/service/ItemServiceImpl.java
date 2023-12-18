@@ -5,10 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
-import ru.practicum.shareit.item.dtoMapper.ItemListMapper;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dtoMapper.ItemListMapper;
 import ru.practicum.shareit.item.dtoMapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.mapperDto.UserMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +29,8 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final ItemListMapper itemListMapper;
     private final ItemValidator itemValidator;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     /**
      * Метод для добавления нового объекта в базу данных
@@ -33,11 +39,16 @@ public class ItemServiceImpl implements ItemService {
      * @param userId  id зарегистрированного пользователя добавляющего объект
      * @throws FormatDataException если переданные в метод данные не соответствуют
      *                             "бизнес-логике"
+     * @throws NoFoundException    если объект с userId не существует
      */
     @Override
     public ItemDto createItem(ItemDto itemDto, Optional<Long> userId) {
-        return itemMapper.modelToDto(itemStorage.createItem(
-                itemValidator.checkCreateAndPatch(itemDto, userId)));
+        itemValidator.checkCreateAndPatch(userId);
+        Item item = itemMapper.dtoToModel(itemDto);
+        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        //полностью заполняем поле owner
+        item.setOwner(user);
+        return itemMapper.modelToDto(itemStorage.createItem(item));
     }
 
     /**
@@ -48,11 +59,16 @@ public class ItemServiceImpl implements ItemService {
      * @param userId  id зарегистрированного пользователя обновляющего объект
      * @throws FormatDataException если переданные в метод данные не соответствуют
      *                             "бизнес-логике"
+     * @throws NoFoundException если объект с userId не существует
      */
     @Override
     public ItemDto updateItem(Optional<Long> userId, long itemId, ItemDto itemDto) {
-        return itemMapper.modelToDto(itemStorage.updateItem(itemId,
-                itemValidator.checkCreateAndPatch(itemDto, userId)));
+        itemValidator.checkCreateAndPatch(userId);
+        Item item = itemMapper.dtoToModel(itemDto);
+        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        //полностью заполняем поле owner
+        item.setOwner(user);
+        return itemMapper.modelToDto(itemStorage.updateItem(itemId, item));
     }
 
     /**
