@@ -84,15 +84,14 @@ public class ItemServiceImpl implements ItemService {
         itemValidator.checkCreateAndPatch(userId);
         Item newItem = itemMapper.dtoToModel(itemDto);
         //неявно проверяем что userId валидно
-        userService.findUserById(userId.get());
+        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
         //полностью заполняем поле owner
-        //     item.setOwner(user);
         Item oldItem = repository.findById(itemId).orElseThrow(() -> {
             log.warn("Вещь с id: {} отсутствует", itemId);
             throw new NoFoundException("Вешь с id: " + itemId + " отсутствует");
         });
 
-        if (newItem.getOwner() != null && newItem.getOwner().getId() != userId.get()) {
+        if (newItem.getOwner() != null && (!(newItem.getOwner().equals(user)))) {
             log.warn("Для смены хозяина вещи {} используйте другой метод",
                     repository.findById(itemId));
             throw new NoFoundException("Для смены хозяина вещи "
