@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     name_user VARCHAR(100),
     email VARCHAR(320)
     );
+
 CREATE TABLE IF NOT EXISTS item_requests (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     description VARCHAR(1000),
@@ -10,6 +11,7 @@ CREATE TABLE IF NOT EXISTS item_requests (
     created TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY(requestor_id) REFERENCES users(id)
 );
+
 CREATE TABLE IF NOT EXISTS items (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name_item VARCHAR(100),
@@ -20,6 +22,7 @@ CREATE TABLE IF NOT EXISTS items (
     CONSTRAINT fk_owner_id FOREIGN KEY(owner_id) REFERENCES users(id),
     CONSTRAINT fk_reqiests_id FOREIGN KEY(request_id) REFERENCES item_requests(id)
 );
+
 CREATE TABLE IF NOT EXISTS bookings (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     start_date TIMESTAMP,
@@ -30,6 +33,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     CONSTRAINT fr_item_id FOREIGN KEY(item_id) REFERENCES items(id),
     CONSTRAINT fr_booker_id FOREIGN KEY(booker_id) REFERENCES users(id)
 );
+
 CREATE TABLE IF NOT EXISTS comments (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     text VARCHAR(1000),
