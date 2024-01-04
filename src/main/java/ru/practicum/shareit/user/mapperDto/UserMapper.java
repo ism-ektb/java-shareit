@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.mapperDto;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserWithoutEmailDto;

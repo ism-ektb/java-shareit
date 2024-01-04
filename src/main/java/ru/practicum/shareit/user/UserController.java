@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.OnCreateGroup;
 import ru.practicum.shareit.item.dto.OnPatchGroup;

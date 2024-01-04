@@ -10,5 +10,6 @@ import java.util.Set;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     Set<Item> findItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIsTrueOrderById(
             String textName, String textDescription);
+
     List<Item> findItemsByOwnerEqualsOrderById(User owner);
 }

@@ -14,10 +14,7 @@ import javax.persistence.*;
  * POJO Item
  */
 @Entity
-@Table(name = "items",
-        uniqueConstraints =
-                {@UniqueConstraint(name = "NameAndOwner",
-                        columnNames = {"name", "owner_id"})})
+@Table(name = "items")
 @SuperBuilder
 @Getter
 @Setter

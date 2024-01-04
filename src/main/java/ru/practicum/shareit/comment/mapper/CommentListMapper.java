@@ -8,5 +8,5 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = CommentMapper.class)
 public interface CommentListMapper {
-    List<CommentOutDto> ModelsToDtosIn(List<Comment> comments);
+    List<CommentOutDto> ModelsToInDtos(List<Comment> comments);
 }

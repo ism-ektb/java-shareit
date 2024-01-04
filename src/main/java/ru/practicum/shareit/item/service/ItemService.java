@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.service;
 
-import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.dto.CommentInDto;
 import ru.practicum.shareit.comment.dto.CommentOutDto;
 import ru.practicum.shareit.exception.FormatDataException;

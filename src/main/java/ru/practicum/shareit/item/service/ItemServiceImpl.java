@@ -134,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
             item.setNextBooking(bookingService.getNextByItem(item.getId()));
         }
-        item.setComments(commentListMapper.ModelsToDtosIn(commentRepository
+        item.setComments(commentListMapper.ModelsToInDtos(commentRepository
                 .findCommentsByItemId(item.getId())));
         return item;
 
@@ -156,7 +156,7 @@ public class ItemServiceImpl implements ItemService {
         for (ItemWithBookingAndCommentDto item : items) {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
             item.setNextBooking(bookingService.getNextByItem(item.getId()));
-            item.setComments(commentListMapper.ModelsToDtosIn(commentRepository
+            item.setComments(commentListMapper.ModelsToInDtos(commentRepository
                     .findCommentsByItemId(item.getId())));
             itemsWithBooking.add(item);
         }
@@ -176,8 +176,8 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getItemOfText(Optional<Long> userId, String text) {
         itemValidator.checkGetRequest(userId);
         if (text.isBlank()) return new ArrayList<>();
-        return itemListMapper.modelsToDtos(new ArrayList<>(repository.
-                findItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIsTrueOrderById(
+        return itemListMapper.modelsToDtos(new ArrayList<>(repository
+                .findItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIsTrueOrderById(
                         text, text)));
     }
 
