@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.mapperDto;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserWithoutEmailDto;
@@ -14,5 +15,12 @@ public interface UserMapper {
     UserWithoutEmailDto modelToDtoWithoutEmail(User user);
 
     User dtoWithoutEmailToModel(UserWithoutEmailDto userWithoutEmailDto);
+/*
+    @Mapping(target = "userId", source = "user.getId()")
+    Long modelToIdDto(User user);
+    @Mapping(target = "user.id", source = "userId")
+    User idDtoToModel(Long userId);
 
+
+ */
 }

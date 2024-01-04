@@ -10,6 +10,5 @@ import java.util.List;
 public class ErrorResponse {
 
     private final List<Error> errors;
-
 }
 
