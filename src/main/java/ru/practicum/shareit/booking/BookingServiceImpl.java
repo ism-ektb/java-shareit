@@ -19,6 +19,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
                     item.toString());
             throw new ValidationException("бронирование вещи " + item.toString() + " не возможно");
         }
-        if (item.getOwner().getId() == userId.get()) {
+        if (item.getOwner().equals(user)) {
             log.warn("бронирование собственной вещи {} не возможно", item.toString());
             throw new NoFoundException("бронирование собственной вещи " + item.toString() +
                     " невозможно");
@@ -89,7 +90,8 @@ public class BookingServiceImpl implements BookingService {
         userValidator.checkCreateAndPatch(userId);
         //неявно проверяем валидность bookingId
         Booking booking = bookingMapper.dtoToModel(getById(userId, bookingId));
-        if (booking.getItem().getOwner().getId() != userId.get()) {
+        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        if (!(booking.getItem().getOwner().equals(user))) {
             log.warn("Подтвердить бронь с id {} может только хозяин вещи", bookingId);
             throw new NoFoundException("Подтвердить бронь c Id " +
                     bookingId + " может только хозяин вещи");
@@ -117,8 +119,9 @@ public class BookingServiceImpl implements BookingService {
             throw new NoFoundException("бронирования с id " +
                     bookingId + " нет в базе");
         });
-        if ((booking.getBooker().getId() != userId.get())
-                && (booking.getItem().getOwner().getId() != userId.get())) {
+        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        if ((!(booking.getBooker().equals(user)))
+                && !(booking.getItem().getOwner().equals(user))) {
             log.info("информация о бронировании доступна только владельцу вещи и автору брони");
             throw new NoFoundException("информация о бронировании доступна" +
                     " только владельцу вещи и автору брони");
@@ -167,7 +170,7 @@ public class BookingServiceImpl implements BookingService {
                 findBooking = repository.findAll(byUserId.and(byStartBeforeNow).and(byEndAfterNow));
                 break;
             default:
-                findBooking = null;
+                return new ArrayList<>();
         }
         List<Booking> bookings = StreamSupport.stream(findBooking.spliterator(), false)
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
@@ -216,7 +219,7 @@ public class BookingServiceImpl implements BookingService {
                 findBooking = repository.findAll(byOwnerId.and(byStartBeforeNow).and(byEndAfterNow));
                 break;
             default:
-                findBooking = null;
+                return new ArrayList<>();
         }
         List<Booking> bookings = StreamSupport.stream(findBooking.spliterator(), false)
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
