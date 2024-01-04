@@ -134,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
             item.setNextBooking(bookingService.getNextByItem(item.getId()));
         }
-        item.setComments(commentListMapper.ModelsToInDtos(commentRepository
+        item.setComments(commentListMapper.modelsToInDtos(commentRepository
                 .findCommentsByItemId(item.getId())));
         return item;
 
@@ -156,7 +156,7 @@ public class ItemServiceImpl implements ItemService {
         for (ItemWithBookingAndCommentDto item : items) {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
             item.setNextBooking(bookingService.getNextByItem(item.getId()));
-            item.setComments(commentListMapper.ModelsToInDtos(commentRepository
+            item.setComments(commentListMapper.modelsToInDtos(commentRepository
                     .findCommentsByItemId(item.getId())));
             itemsWithBooking.add(item);
         }
