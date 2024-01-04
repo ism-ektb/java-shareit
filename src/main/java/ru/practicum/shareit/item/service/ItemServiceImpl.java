@@ -14,7 +14,6 @@ import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 import ru.practicum.shareit.item.dtoMapper.ItemListMapper;
@@ -37,7 +36,6 @@ import java.util.Optional;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
     private final ItemMapper itemMapper;
     private final ItemListMapper itemListMapper;
     private final UserValidator itemValidator;
