@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.dto.SimpleBookingDto;
@@ -19,7 +20,6 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +31,7 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository repository;
@@ -51,6 +52,7 @@ public class BookingServiceImpl implements BookingService {
      * @throws ValidationException если поле Available вещи == false
      */
     @Override
+    @Transactional
     public BookingDto create(Optional<Long> userId, SimpleBookingDto simpleBookingDto) {
         userValidator.checkCreateAndPatch(userId);
         //неявно проверяем валидность itemId и userId
@@ -86,6 +88,7 @@ public class BookingServiceImpl implements BookingService {
      * @throws ValidationException если собственник уже подтвердил бронирование
      */
     @Override
+    @Transactional
     public BookingDto approved(Optional<Long> userId, Long bookingId, Boolean approved) {
         userValidator.checkCreateAndPatch(userId);
         //неявно проверяем валидность bookingId
@@ -112,6 +115,7 @@ public class BookingServiceImpl implements BookingService {
      *                          и не бронирующий юзер
      */
     @Override
+    @Transactional(readOnly = true)
     public BookingDto getById(Optional<Long> userId, Long bookingId) {
         userValidator.checkCreateAndPatch(userId);
         Booking booking = repository.findById(bookingId).orElseThrow(() -> {
@@ -136,12 +140,13 @@ public class BookingServiceImpl implements BookingService {
      * @throws NoFoundException если переданный userId не валиден
      */
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAllForBooker(Optional<Long> userId, BookingStatus state) {
 
         userValidator.checkCreateAndPatch(userId);
         //неявно проверяем валидность userId
         User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
-        Iterable<Booking> findBooking;
+        Iterable findBooking;
 
         BooleanExpression byUserId = QBooking.booking.booker.id.eq(userId.get());
         BooleanExpression byStatus = QBooking.booking.status.eq(state);
@@ -170,13 +175,16 @@ public class BookingServiceImpl implements BookingService {
                 findBooking = repository.findAll(byUserId.and(byStartBeforeNow).and(byEndAfterNow));
                 break;
             default:
-                return new ArrayList<>();
+                findBooking = repository.findAll(byUserId.and(byStartBeforeNow));
         }
-        List<Booking> bookings = StreamSupport.stream(findBooking.spliterator(), false)
+        @SuppressWarnings("unchecked")
+        Iterable<Booking> iterable = findBooking;
+        List<Booking> bookings = StreamSupport.stream(iterable.spliterator(), false)
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .collect(Collectors.toList());
         return bookingListMapper.modelsToDtos(bookings);
     }
+
 
     /**
      * Метод получения всех бронирований владельца вещей в зависимости от даты(времени)
@@ -185,12 +193,13 @@ public class BookingServiceImpl implements BookingService {
      * @throws NoFoundException если переданный userId не валиден
      */
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAllForOwner(Optional<Long> ownerId, BookingStatus state) {
 
         userValidator.checkCreateAndPatch(ownerId);
         //неявно проверяем валидность userId
         User user = userMapper.dtoToModel(userService.findUserById(ownerId.get()));
-        Iterable<Booking> findBooking;
+        Iterable findBooking;
 
         BooleanExpression byOwnerId = QBooking.booking.item.owner.id.eq(ownerId.get());
         BooleanExpression byStatus = QBooking.booking.status.eq(state);
@@ -219,9 +228,11 @@ public class BookingServiceImpl implements BookingService {
                 findBooking = repository.findAll(byOwnerId.and(byStartBeforeNow).and(byEndAfterNow));
                 break;
             default:
-                return new ArrayList<>();
+                findBooking = repository.findAll(byOwnerId.and(byStartBeforeNow));
         }
-        List<Booking> bookings = StreamSupport.stream(findBooking.spliterator(), false)
+        @SuppressWarnings("unchecked")
+        Iterable<Booking> iterable = findBooking;
+        List<Booking> bookings = StreamSupport.stream(iterable.spliterator(), false)
                 .sorted(Comparator.comparing(Booking::getStart).reversed())
                 .collect(Collectors.toList());
         return bookingListMapper.modelsToDtos(bookings);
@@ -232,11 +243,13 @@ public class BookingServiceImpl implements BookingService {
      * входные данные не проверяются.
      */
     @Override
+    @Transactional(readOnly = true)
     public BookingForItemDto getLastByItem(Long itemId) {
 
         BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
         BooleanExpression byStartBeforeNow = QBooking.booking.start.before(LocalDateTime.now());
         BooleanExpression byStatus = QBooking.booking.status.in(List.of(APPROVED, WAITING));
+        @SuppressWarnings("unchecked")
         Iterable<Booking> findBooking = repository
                 .findAll(byItemId.and(byStartBeforeNow).and(byStatus));
         Booking booking = StreamSupport.stream(findBooking.spliterator(), false)
@@ -250,10 +263,12 @@ public class BookingServiceImpl implements BookingService {
      * входные данные не проверяются.
      */
     @Override
+    @Transactional(readOnly = true)
     public BookingForItemDto getNextByItem(Long itemId) {
         BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
         BooleanExpression byStartAfter = QBooking.booking.start.after(LocalDateTime.now());
         BooleanExpression byStatus = QBooking.booking.status.in(List.of(APPROVED, WAITING));
+        @SuppressWarnings("unchecked")
         Iterable<Booking> findBooking = repository.findAll(byItemId
                 .and(byStartAfter).and(byStatus));
         Booking booking = StreamSupport.stream(findBooking.spliterator(), false)
@@ -269,11 +284,13 @@ public class BookingServiceImpl implements BookingService {
      * в случае отсутствия бронирований возвращается пустой список
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Booking> findAllFinishByItemByUser(Long userId, Long itemId) {
         BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
         BooleanExpression byBookerId = QBooking.booking.booker.id.eq(userId);
         BooleanExpression byFinish = QBooking.booking.end.before(LocalDateTime.now());
         BooleanExpression byStatus = QBooking.booking.status.eq(APPROVED);
+        @SuppressWarnings("unchecked")
         Iterable<Booking> findBooking = repository.findAll(byBookerId.and(byItemId)
                 .and(byFinish).and(byStatus));
         return StreamSupport.stream(findBooking.spliterator(), false)
