@@ -11,5 +11,4 @@ public class Error {
 
     private final String fieldName;
     private final String message;
-
 }

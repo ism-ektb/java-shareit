@@ -16,26 +16,26 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserStorage userStorage;
     private final UserMapper userMapper;
     private final UserListMapper userListMapper;
+    private final UserRepository repository;
 
     /**
      * запись в репозитория нового объекта класса User с присвоением нового id
      *
-     * @throws FormatDataException если объект с таким емаил уже существует
+     * @throws java.sql.SQLException если email не уникальный
      */
     @Override
     public UserDto createUser(UserDto userDto) {
-        return userMapper.modelToDto(userStorage.createUser(
-                userMapper.dtoToModel(userDto)));
+        User newUser = userMapper.dtoToModel(userDto);
+        return userMapper.modelToDto(repository.save(newUser));
     }
 
     /**
      * обновление данных объекта класса User
      *
-     * @throws FormatDataException если объект с таким емаил уже существует
-     * @throws NoFoundException    передан id не существующего объекта
+     * @throws java.sql.SQLException если объект с таким емаил уже существует
+     * @throws NoFoundException      передан id не существующего объекта
      */
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
@@ -45,8 +45,21 @@ public class UserServiceImpl implements UserService {
                     + id + " не может изменить данные юзера: "
                     + userDto.toString());
         }
-        return userMapper.modelToDto(userStorage.updateUser(
-                userMapper.dtoToModel(userDto), id));
+        User oldUser = repository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User c id: {} не существует", id);
+                    throw new NoFoundException("User c id: " + id + " не существует");
+                });
+        User newUser = userMapper.dtoToModel(userDto);
+
+        User user = repository.save(
+                User.builder()
+                        .id(id)
+                        .name(newUser.getName() == null ? oldUser.getName() : newUser.getName())
+                        .email(newUser.getEmail() == null ? oldUser.getEmail() : newUser.getEmail())
+                        .build());
+
+        return userMapper.modelToDto(user);
     }
 
     /**
@@ -54,7 +67,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public List<UserDto> findAllUsers() {
-        return userListMapper.modelsToDtos(userStorage.getAllUsers());
+        return userListMapper.modelsToDtos(repository.findAll());
     }
 
     /**
@@ -64,7 +77,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto findUserById(long id) {
-        return userMapper.modelToDto(userStorage.getUser(id));
+        return userMapper.modelToDto(repository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User c id: {} не существует", id);
+                    throw new NoFoundException("User c id: " + id + " не существует");
+                }));
     }
 
     /**
@@ -74,6 +91,6 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteUser(long id) {
-        userStorage.deleteUser(id);
+        repository.deleteById(id);
     }
 }

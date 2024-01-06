@@ -1,16 +1,21 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentInDto;
+import ru.practicum.shareit.comment.dto.CommentOutDto;
 import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 import ru.practicum.shareit.item.dto.OnCreateGroup;
 import ru.practicum.shareit.item.dto.OnPatchGroup;
 import ru.practicum.shareit.item.service.ItemService;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Slf4j
 public class ItemController {
 
     private final ItemService itemService;
@@ -60,8 +66,8 @@ public class ItemController {
      * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
     @GetMapping("/{itemId}")
-    public ItemDto getItemDtoById(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId,
-                                  @PathVariable("itemId") long itemId) {
+    public ItemWithBookingAndCommentDto getItemDtoById(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId,
+                                                       @PathVariable("itemId") long itemId) {
         return itemService.getItemOfId(userId, itemId);
     }
 
@@ -72,7 +78,7 @@ public class ItemController {
      * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
     @GetMapping()
-    public List<ItemDto> getItemDtoByUser(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId) {
+    public List<ItemWithBookingAndCommentDto> getItemDtoByUser(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId) {
         return itemService.getItems(userId);
     }
 
@@ -87,5 +93,17 @@ public class ItemController {
     public List<ItemDto> getItemDtoByUser(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId,
                                           @RequestParam("text") String text) {
         return itemService.getItemOfText(userId, text);
+    }
+
+    /**
+     * Метод добавления комментария
+     *
+     * @throws MethodArgumentNotValidException при ошибке валидации commentInDto
+     */
+    @PostMapping("/{itemId}/comment")
+    public CommentOutDto addCommentForItem(@RequestHeader("X-Sharer-User-Id") Optional<Long> userId,
+                                           @PathVariable("itemId") long itemId,
+                                           @Valid @RequestBody CommentInDto commentInDto) {
+        return itemService.addComment(userId, itemId, commentInDto);
     }
 }

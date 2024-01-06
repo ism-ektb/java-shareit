@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.OnCreateGroup;
 import ru.practicum.shareit.item.dto.OnPatchGroup;
@@ -27,7 +26,7 @@ public class UserController {
     /**
      * запись в репозитория нового объекта класса User с присвоением нового id
      *
-     * @throws FormatDataException если объект с таким емаил уже существует
+     * @throws java.sql.SQLException если объект с таким емаил уже существует
      */
     @PostMapping
     public UserDto createUserDto(@Validated(OnCreateGroup.class) @RequestBody UserDto userDto) {
@@ -55,7 +54,7 @@ public class UserController {
     /**
      * обновление данных объекта класса User
      *
-     * @throws FormatDataException если объект с таким емаил уже существует
+     * @throws java.sql.SQLException если объект с таким емаил уже существует
      * @throws NoFoundException    передан id не существующего объекта
      */
     @PatchMapping("/{id}")
