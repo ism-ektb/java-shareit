@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +19,8 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static ru.practicum.shareit.booking.BookingStatus.*;
 
@@ -146,43 +142,35 @@ public class BookingServiceImpl implements BookingService {
         userValidator.checkCreateAndPatch(userId);
         //неявно проверяем валидность userId
         User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
-        Iterable findBooking;
-
-        BooleanExpression byUserId = QBooking.booking.booker.id.eq(userId.get());
-        BooleanExpression byStatus = QBooking.booking.status.eq(state);
-        BooleanExpression byStartAfterNow = QBooking.booking.start.after(LocalDateTime.now());
-        BooleanExpression byEndBeforeNow = QBooking.booking.end.before(LocalDateTime.now());
-        BooleanExpression byStartBeforeNow = QBooking.booking.start.before(LocalDateTime.now());
-        BooleanExpression byEndAfterNow = QBooking.booking.end.after(LocalDateTime.now());
+        List<Booking> findBooking;
 
         switch (state) {
             case ALL:
-                findBooking = repository.findAll(byUserId);
+                findBooking = repository.findAllByBookerIdOrderByStartDesc(userId.get());
                 break;
             case WAITING:
             case REJECTED:
             case CANCELED:
             case APPROVED:
-                findBooking = repository.findAll(byUserId.and(byStatus));
+                findBooking = repository.findAllByBookerIdAndAndStatusEqualsOrderByStartDesc(
+                        userId.get(), state);
                 break;
             case FUTURE:
-                findBooking = repository.findAll(byUserId.and(byStartAfterNow));
+                findBooking = repository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                        userId.get(), LocalDateTime.now());
                 break;
             case PAST:
-                findBooking = repository.findAll(byUserId.and(byEndBeforeNow));
+                findBooking = repository.findAllByBookerIdAndAndEndBeforeOrderByStartDesc(
+                        userId.get(), LocalDateTime.now());
                 break;
             case CURRENT:
-                findBooking = repository.findAll(byUserId.and(byStartBeforeNow).and(byEndAfterNow));
+                findBooking = repository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                        userId.get(), LocalDateTime.now(), LocalDateTime.now());
                 break;
             default:
-                findBooking = repository.findAll(byUserId.and(byStartBeforeNow));
+                findBooking = null;
         }
-        @SuppressWarnings("unchecked")
-        Iterable<Booking> iterable = findBooking;
-        List<Booking> bookings = StreamSupport.stream(iterable.spliterator(), false)
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                .collect(Collectors.toList());
-        return bookingListMapper.modelsToDtos(bookings);
+        return bookingListMapper.modelsToDtos(findBooking);
     }
 
 
@@ -199,43 +187,35 @@ public class BookingServiceImpl implements BookingService {
         userValidator.checkCreateAndPatch(ownerId);
         //неявно проверяем валидность userId
         User user = userMapper.dtoToModel(userService.findUserById(ownerId.get()));
-        Iterable findBooking;
-
-        BooleanExpression byOwnerId = QBooking.booking.item.owner.id.eq(ownerId.get());
-        BooleanExpression byStatus = QBooking.booking.status.eq(state);
-        BooleanExpression byStartAfterNow = QBooking.booking.start.after(LocalDateTime.now());
-        BooleanExpression byEndBeforeNow = QBooking.booking.end.before(LocalDateTime.now());
-        BooleanExpression byStartBeforeNow = QBooking.booking.start.before(LocalDateTime.now());
-        BooleanExpression byEndAfterNow = QBooking.booking.end.after(LocalDateTime.now());
+        List<Booking> findBooking;
 
         switch (state) {
             case ALL:
-                findBooking = repository.findAll(byOwnerId);
+                findBooking = repository.findAllByItemOwnerIdOrderByStartDesc(ownerId.get());
                 break;
             case WAITING:
             case REJECTED:
             case CANCELED:
             case APPROVED:
-                findBooking = repository.findAll(byOwnerId.and(byStatus));
+                findBooking = repository.findAllByItemOwnerIdAndAndStatusEqualsOrderByStartDesc(
+                        ownerId.get(), state);
                 break;
             case FUTURE:
-                findBooking = repository.findAll(byOwnerId.and(byStartAfterNow));
+                findBooking = repository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(
+                        ownerId.get(), LocalDateTime.now());
                 break;
             case PAST:
-                findBooking = repository.findAll(byOwnerId.and(byEndBeforeNow));
+                findBooking = repository.findAllByItemOwnerIdAndAndEndBeforeOrderByStartDesc(
+                        ownerId.get(), LocalDateTime.now());
                 break;
             case CURRENT:
-                findBooking = repository.findAll(byOwnerId.and(byStartBeforeNow).and(byEndAfterNow));
+                findBooking = repository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                        ownerId.get(), LocalDateTime.now(), LocalDateTime.now());
                 break;
             default:
-                findBooking = repository.findAll(byOwnerId.and(byStartBeforeNow));
+                findBooking = null;
         }
-        @SuppressWarnings("unchecked")
-        Iterable<Booking> iterable = findBooking;
-        List<Booking> bookings = StreamSupport.stream(iterable.spliterator(), false)
-                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                .collect(Collectors.toList());
-        return bookingListMapper.modelsToDtos(bookings);
+        return bookingListMapper.modelsToDtos(findBooking);
     }
 
     /**
@@ -245,17 +225,10 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public BookingForItemDto getLastByItem(Long itemId) {
-
-        BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
-        BooleanExpression byStartBeforeNow = QBooking.booking.start.before(LocalDateTime.now());
-        BooleanExpression byStatus = QBooking.booking.status.in(List.of(APPROVED, WAITING));
-        @SuppressWarnings("unchecked")
-        Iterable<Booking> findBooking = repository
-                .findAll(byItemId.and(byStartBeforeNow).and(byStatus));
-        Booking booking = StreamSupport.stream(findBooking.spliterator(), false)
-                .max(Comparator.comparing(Booking::getEnd))
-                .orElse(null);
-        return bookingMapper.modelToDtoForItem(booking);
+        List<Booking> findBookings = repository.findAllLast(
+                itemId, LocalDateTime.now(), APPROVED, WAITING);
+        return bookingMapper.modelToDtoForItem(
+                findBookings.isEmpty() ? null : findBookings.get(0));
     }
 
     /**
@@ -265,16 +238,10 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public BookingForItemDto getNextByItem(Long itemId) {
-        BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
-        BooleanExpression byStartAfter = QBooking.booking.start.after(LocalDateTime.now());
-        BooleanExpression byStatus = QBooking.booking.status.in(List.of(APPROVED, WAITING));
-        @SuppressWarnings("unchecked")
-        Iterable<Booking> findBooking = repository.findAll(byItemId
-                .and(byStartAfter).and(byStatus));
-        Booking booking = StreamSupport.stream(findBooking.spliterator(), false)
-                .min(Comparator.comparing(Booking::getStart))
-                .orElse(null);
-        return bookingMapper.modelToDtoForItem(booking);
+        List<Booking> findBookings = repository.findAllNext(
+                itemId, LocalDateTime.now(), APPROVED, WAITING);
+        return bookingMapper.modelToDtoForItem(
+                findBookings.isEmpty() ? null : findBookings.get(0));
     }
 
     /**
@@ -286,14 +253,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<Booking> findAllFinishByItemByUser(Long userId, Long itemId) {
-        BooleanExpression byItemId = QBooking.booking.item.id.eq(itemId);
-        BooleanExpression byBookerId = QBooking.booking.booker.id.eq(userId);
-        BooleanExpression byFinish = QBooking.booking.end.before(LocalDateTime.now());
-        BooleanExpression byStatus = QBooking.booking.status.eq(APPROVED);
-        @SuppressWarnings("unchecked")
-        Iterable<Booking> findBooking = repository.findAll(byBookerId.and(byItemId)
-                .and(byFinish).and(byStatus));
-        return StreamSupport.stream(findBooking.spliterator(), false)
-                .collect(Collectors.toList());
+        return repository.findAllFinishByBookerIdByItemId(
+                userId, itemId, LocalDateTime.now());
     }
 }
