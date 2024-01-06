@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS as IDENTITY PRIMARY KEY,
     name_user VARCHAR(100),
-    email VARCHAR(320)
+    email VARCHAR(320),
+    CONSTRAINT uq_email UNIQUE (email)
     );
 
 CREATE TABLE IF NOT EXISTS item_requests (
