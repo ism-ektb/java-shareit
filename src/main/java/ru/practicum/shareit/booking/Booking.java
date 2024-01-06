@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  * POJO booking.
  */
 @Entity
-@Table(name = "booking")
+@Table(name = "bookings")
 @Getter
 @Setter
 @SuperBuilder

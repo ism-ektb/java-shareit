@@ -22,7 +22,7 @@ public class Comment {
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private Item item;
     @ManyToOne
-    @JoinColumn(name = "auther_id", referencedColumnName = "id")
+    @JoinColumn(name = "author_id", referencedColumnName = "id")
     private User author;
     private LocalDateTime created;
 }
