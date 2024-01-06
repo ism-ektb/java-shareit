@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -15,7 +14,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -28,7 +26,6 @@ public class UserServiceImpl implements UserService {
      * @throws java.sql.SQLException если email не уникальный
      */
     @Override
-    @Transactional
     public UserDto createUser(UserDto userDto) {
         User newUser = userMapper.dtoToModel(userDto);
         return userMapper.modelToDto(repository.save(newUser));
@@ -41,7 +38,6 @@ public class UserServiceImpl implements UserService {
      * @throws NoFoundException      передан id не существующего объекта
      */
     @Override
-    @Transactional
     public UserDto updateUser(UserDto userDto, long id) {
         if ((userDto.getId() != null) && (userDto.getId() != id)) {
             log.warn("Юзер c id: {} не может изменить данные юзера: {}", id, userDto.toString());
@@ -94,7 +90,6 @@ public class UserServiceImpl implements UserService {
      * @throws NoFoundException передан id не существующего объекта
      */
     @Override
-    @Transactional
     public void deleteUser(long id) {
         repository.deleteById(id);
     }
