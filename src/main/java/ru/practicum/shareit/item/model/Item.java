@@ -25,6 +25,7 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(name = "name_item")
     private String name;
     private String description;
     private Boolean available;
