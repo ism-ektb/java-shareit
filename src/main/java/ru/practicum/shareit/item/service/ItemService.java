@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item.service;
 
+import ru.practicum.shareit.comment.dto.CommentInDto;
+import ru.practicum.shareit.comment.dto.CommentOutDto;
 import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +39,7 @@ public interface ItemService {
      * @throws NoFoundException если объект с переданным id отсутствует в хранилище
      * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
-    ItemDto getItemOfId(Optional<Long> userId, long itemId);
+    ItemWithBookingAndCommentDto getItemOfId(Optional<Long> userId, long itemId);
 
     /**
      * Метод возвращает список объектов у которых поле Owner соответствет преданному параметру
@@ -44,7 +47,7 @@ public interface ItemService {
      * @param userId id объекта класса User
      * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
-    List<ItemDto> getItems(Optional<Long> userId);
+    List<ItemWithBookingAndCommentDto> getItems(Optional<Long> userId);
 
     /**
      * Метод возвращает список объектов из хранилища в поле name и description
@@ -53,4 +56,6 @@ public interface ItemService {
      * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
     List<ItemDto> getItemOfText(Optional<Long> userId, String text);
+
+    CommentOutDto addComment(Optional<Long> userId, Long itemId, CommentInDto commentInDto);
 }

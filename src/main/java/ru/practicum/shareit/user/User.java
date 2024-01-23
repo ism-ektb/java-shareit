@@ -1,18 +1,27 @@
 package ru.practicum.shareit.user;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import javax.persistence.*;
 
 /**
  * POJO класс для описания сущности User
  */
-@Data
-@Builder
+@Entity
+@Table(name = "users")
+@Getter
+@SuperBuilder
+@NoArgsConstructor
+@ToString
+@EqualsAndHashCode(exclude = {"email"})
 public class User {
-    @EqualsAndHashCode.Exclude
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @EqualsAndHashCode.Exclude
+    @Column(name = "name_user")
     private String name;
+    @Column(unique = true)
+    @ToString.Exclude
     private String email;
 }
