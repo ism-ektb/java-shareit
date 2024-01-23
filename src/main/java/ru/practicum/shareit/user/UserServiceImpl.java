@@ -45,11 +45,7 @@ public class UserServiceImpl implements UserService {
                     + id + " не может изменить данные юзера: "
                     + userDto.toString());
         }
-        User oldUser = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("User c id: {} не существует", id);
-                    throw new NoFoundException("User c id: " + id + " не существует");
-                });
+        User oldUser = findUserByIdForValid(id);
         User newUser = userMapper.dtoToModel(userDto);
 
         User user = repository.save(
@@ -58,7 +54,6 @@ public class UserServiceImpl implements UserService {
                         .name(newUser.getName() == null ? oldUser.getName() : newUser.getName())
                         .email(newUser.getEmail() == null ? oldUser.getEmail() : newUser.getEmail())
                         .build());
-
         return userMapper.modelToDto(user);
     }
 
@@ -92,5 +87,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public User findUserByIdForValid(long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User c id: {} не существует", id);
+                    throw new NoFoundException("User c id: " + id + " не существует");
+                });
     }
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.comment.Comment;
@@ -10,7 +11,6 @@ import ru.practicum.shareit.comment.dto.CommentInDto;
 import ru.practicum.shareit.comment.dto.CommentOutDto;
 import ru.practicum.shareit.comment.mapper.CommentListMapper;
 import ru.practicum.shareit.comment.mapper.CommentMapper;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -26,7 +26,6 @@ import ru.practicum.shareit.user.mapperDto.UserMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Сервисный класс для работы с объектами класса Item
@@ -38,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemMapper itemMapper;
     private final ItemListMapper itemListMapper;
-    private final UserValidator itemValidator;
     private final UserService userService;
     private final UserMapper userMapper;
     private final ItemRepository repository;
@@ -53,15 +51,13 @@ public class ItemServiceImpl implements ItemService {
      *
      * @param itemDto новый объект
      * @param userId  id зарегистрированного пользователя добавляющего объект
-     * @throws FormatDataException если переданные в метод данные не соответствуют
-     *                             "бизнес-логике"
-     * @throws NoFoundException    если объект с userId не существует
+     * @throws NoFoundException если объект с userId не существует
      */
     @Override
-    public ItemDto createItem(ItemDto itemDto, Optional<Long> userId) {
-        itemValidator.checkCreateAndPatch(userId);
+    public ItemDto createItem(ItemDto itemDto, long userId) {
         Item item = itemMapper.dtoToModel(itemDto);
-        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        //проверяем userId
+        User user = userService.findUserByIdForValid(userId);
         //полностью заполняем поле owner
         item.setOwner(user);
         return itemMapper.modelToDto(repository.save(item));
@@ -71,44 +67,35 @@ public class ItemServiceImpl implements ItemService {
      * Метод для обновления данных об объекте в базе данных
      *
      * @param itemDto данные для обновления
-     * @param itemId id обновляемого объекта
+     * @param itemId  id обновляемого объекта
      * @param userId  id зарегистрированного пользователя обновляющего объект
-     * @throws FormatDataException если переданные в метод данные не соответствуют
-     *                             "бизнес-логике"
      * @throws NoFoundException если объект с userId не существует
      */
     @Override
-    public ItemDto updateItem(Optional<Long> userId, long itemId, ItemDto itemDto) {
-        itemValidator.checkCreateAndPatch(userId);
+    public ItemDto updateItem(long userId, long itemId, ItemDto itemDto) {
         Item newItem = itemMapper.dtoToModel(itemDto);
         //неявно проверяем что userId валидно
-        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
-        //полностью заполняем поле owner
+        userService.findUserByIdForValid(userId);
         Item oldItem = repository.findById(itemId).orElseThrow(() -> {
             log.warn("Вещь с id: {} отсутствует", itemId);
             throw new NoFoundException("Вешь с id: " + itemId + " отсутствует");
         });
-
-        if (newItem.getOwner() != null && (!(newItem.getOwner().equals(user)))) {
-            log.warn("Для смены хозяина вещи {} используйте другой метод",
-                    repository.findById(itemId));
-            throw new NoFoundException("Для смены хозяина вещи "
-                    + repository.findById(itemId) + " используйте другой метод");
+        if (oldItem.getOwner().getId() != userId) {
+            log.warn("только хозяин может редактировать данные о вещи {}", oldItem.toString());
+            throw new ValidationException("только хозяин может редактировать данные о вещи " + oldItem.toString());
         }
-
         Item item = repository.save(
                 Item.builder()
                         .id(itemId)
                         .name(newItem.getName() == null ? oldItem.getName() : newItem.getName())
                         .description(newItem.getDescription() == null ?
                                 oldItem.getDescription() : newItem.getDescription())
-                        .owner(User.builder().id(userId.get()).build())
+                        .owner(User.builder().id(userId).build())
                         .available(newItem.getAvailable() == null ?
                                 oldItem.getAvailable() : newItem.getAvailable())
                         .request(newItem.getRequest() == null ?
                                 oldItem.getRequest() : newItem.getRequest())
                         .build());
-
 
         return itemMapper.modelToDto(repository.save(item));
     }
@@ -117,17 +104,15 @@ public class ItemServiceImpl implements ItemService {
      * Метод пролучения объекта из хранилища по id
      *
      * @param itemId id объекта класса Item
-     * @throws NoFoundException    если объект с переданным id отсутствует в хранилище
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
+     * @throws NoFoundException если объект с переданным id отсутствует в хранилище
      */
     @Override
-    public ItemWithBookingAndCommentDto getItemOfId(Optional<Long> userId, long itemId) {
-        itemValidator.checkGetRequest(userId);
+    public ItemWithBookingAndCommentDto getItemOfId(long userId, long itemId) {
         ItemWithBookingAndCommentDto item = itemMapper.modelToDtoWithBooking(repository.findById(itemId).orElseThrow(() -> {
             log.warn("Вещь с id: {} отсутствует", itemId);
             throw new NoFoundException("Вешь с id: " + itemId + " отсутствует");
         }));
-        if (userId.get() == item.getOwner().getId()) {
+        if (userId == item.getOwner().getId()) {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
             item.setNextBooking(bookingService.getNextByItem(item.getId()));
         }
@@ -141,14 +126,12 @@ public class ItemServiceImpl implements ItemService {
      * Метод возвращает список объектов у которых поле Owner соответствет преданному параметру
      *
      * @param userId id объекта класса User
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
     @Override
-    public List<ItemWithBookingAndCommentDto> getItems(Optional<Long> userId) {
-        itemValidator.checkGetRequest(userId);
-        User owner = userMapper.dtoToModel(userService.findUserById(userId.get()));
+    public List<ItemWithBookingAndCommentDto> getItems(long userId, Pageable pageRequest) {
+        User owner = userService.findUserByIdForValid(userId);
         List<ItemWithBookingAndCommentDto> items =
-                itemListMapper.modelsToDtoWithBookings(repository.findItemsByOwnerEqualsOrderById(owner));
+                itemListMapper.modelsToDtoWithBookings(repository.findItemsByOwnerEqualsOrderById(owner, pageRequest));
         List<ItemWithBookingAndCommentDto> itemsWithBooking = new ArrayList<>();
         for (ItemWithBookingAndCommentDto item : items) {
             item.setLastBooking(bookingService.getLastByItem(item.getId()));
@@ -166,16 +149,14 @@ public class ItemServiceImpl implements ItemService {
      * Метод возвращает список объектов из хранилища в поле name и description
      * которых встречается подстрока передаваемая в качестве параметра.
      * Если ничего не найдено, то возвращается пустой список
-     *
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
     @Override
-    public List<ItemDto> getItemOfText(Optional<Long> userId, String text) {
-        itemValidator.checkGetRequest(userId);
+    public List<ItemDto> getItemOfText(long userId, String text, Pageable pageRequest) {
         if (text.isBlank()) return new ArrayList<>();
-        return itemListMapper.modelsToDtos(new ArrayList<>(repository
+        User owner = userService.findUserByIdForValid(userId);
+        return itemListMapper.modelsToDtos(repository
                 .findItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIsTrueOrderById(
-                        text, text)));
+                        text, text, pageRequest));
     }
 
     /**
@@ -186,18 +167,17 @@ public class ItemServiceImpl implements ItemService {
      *                             которую комметрировал
      */
     @Override
-    public CommentOutDto addComment(Optional<Long> userId, Long itemId, CommentInDto commentInDto) {
-        itemValidator.checkCreateAndPatch(userId);
+    public CommentOutDto addComment(long userId, long itemId, CommentInDto commentInDto) {
         //проверяем валидность itemId и userId
-        User user = userMapper.dtoToModel(userService.findUserById(userId.get()));
+        User user = userService.findUserByIdForValid(userId);
         Item item = repository.findById(itemId).orElseThrow(() -> {
             log.warn("Вещь с id: {} отсутствует", itemId);
             throw new NoFoundException("Вешь с id: " + itemId + " отсутствует");
         });
-        if (bookingService.findAllFinishByItemByUser(userId.get(), itemId).isEmpty()) {
+        if (bookingService.findAllFinishByItemByUser(userId, itemId).isEmpty()) {
             log.warn("Юзер c id {} не может добавить комментарий," +
-                    " т.к. он не бронировал вещь c id {}", userId.get(), itemId);
-            throw new ValidationException("Юзер c id " + userId.get() + " не может добавить" +
+                    " т.к. он не бронировал вещь c id {}", userId, itemId);
+            throw new ValidationException("Юзер c id " + userId + " не может добавить" +
                     " комментарий, т.к. он не бронировал вещь c id " + itemId);
         }
         return commentMapper.modelToOutDto(commentRepository.save(Comment.builder()

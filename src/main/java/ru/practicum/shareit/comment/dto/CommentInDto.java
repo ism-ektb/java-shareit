@@ -1,11 +1,19 @@
 package ru.practicum.shareit.comment.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
-@Data
+@Getter
+@Builder
+@ToString
+@EqualsAndHashCode
 public class CommentInDto {
-    @NotBlank
-    private String text;
+
+  private Long id;
+  @NotBlank
+  private String text;
 }

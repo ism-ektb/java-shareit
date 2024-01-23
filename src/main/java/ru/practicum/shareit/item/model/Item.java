@@ -1,9 +1,6 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -20,6 +17,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Item {
 
     @Id

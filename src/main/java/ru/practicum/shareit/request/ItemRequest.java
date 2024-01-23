@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.user.User;
 
@@ -14,8 +13,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "item_requests")
 @Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class ItemRequest {
 
     @Id

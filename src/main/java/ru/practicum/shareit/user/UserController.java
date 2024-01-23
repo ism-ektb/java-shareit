@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +8,6 @@ import ru.practicum.shareit.item.dto.OnCreateGroup;
 import ru.practicum.shareit.item.dto.OnPatchGroup;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -69,7 +67,7 @@ public class UserController {
      * @throws NoFoundException передан id не существующего объекта
      */
     @DeleteMapping("/{id}")
-    public void deleteUser(@NonNull @PathVariable("id") @NotNull long userId) {
+    public void deleteUser(@PathVariable("id") long userId) {
         userService.deleteUser(userId);
     }
 

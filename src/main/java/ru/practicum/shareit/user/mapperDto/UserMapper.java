@@ -14,12 +14,5 @@ public interface UserMapper {
     UserWithoutEmailDto modelToDtoWithoutEmail(User user);
 
     User dtoWithoutEmailToModel(UserWithoutEmailDto userWithoutEmailDto);
-/*
-    @Mapping(target = "userId", source = "user.getId()")
-    Long modelToIdDto(User user);
-    @Mapping(target = "user.id", source = "userId")
-    User idDtoToModel(Long userId);
 
-
- */
 }
