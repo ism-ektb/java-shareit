@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.dto.SimpleBookingDto;
+import ru.practicum.shareit.booking.dtoMapper.BookingListMapper;
 import ru.practicum.shareit.booking.dtoMapper.BookingMapper;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -15,6 +17,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +34,8 @@ class BookingServiceImplTest {
     private BookingService service;
     @Autowired
     private BookingMapper mapper;
+    @Autowired
+    private BookingListMapper listMapper;
     @MockBean
     private ItemRepository itemRepository;
     @MockBean
@@ -240,5 +245,128 @@ class BookingServiceImplTest {
         assertEquals(service.approved(3L, 4L, true), mapper.modelToDto(testBooking));
         verify(repository).save(testBooking);
 
+    }
+
+    @Test
+    void findAllForBooker() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, CURRENT, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+
+    }
+
+    @Test
+    void findAllForOwner() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForOwner(2L, CURRENT, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForOwner_whenSendPast_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByItemOwnerIdAndAndEndBeforeOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForOwner(2L, PAST, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForOwner_whenSendFuture_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForOwner(2L, FUTURE, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForOwner_whenSendWaiting_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByItemOwnerIdAndAndStatusEqualsOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForOwner(2L, WAITING, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForOwner_whenSendAll_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByItemOwnerIdOrderByStartDesc(anyLong(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForOwner(2L, ALL, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForBooker_whenSendAll_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdOrderByStartDesc(anyLong(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, ALL, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForBooker_whenSendWaiting_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdAndAndStatusEqualsOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, WAITING, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForBooker_whenSendFuture_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, FUTURE, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForBooker_whenSendPast_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdAndAndEndBeforeOrderByStartDesc(anyLong(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, PAST, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void findAllForBooker_whenSendCurrent_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.findAllForBooker(2L, CURRENT, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
+    }
+
+    @Test
+    void getLastByItem() {
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllLast(anyLong(), any(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.getLastByItem(2L), mapper.modelToDtoForItem(list.get(0)));
+    }
+
+    @Test
+    void getNextByItem() {
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllNext(anyLong(), any(), any(), any()))
+                .thenReturn(list);
+        assertEquals(service.getNextByItem(2L), mapper.modelToDtoForItem(list.get(0)));
+    }
+
+    @Test
+    void findAllFinishByItemByUser_whenDataTrue_thenReturnList() {
+        List<Booking> list = List.of(Booking.builder().id(1L).build());
+        when(repository.findAllFinishByBookerIdByItemId(anyLong(), anyLong(), any())).thenReturn(list);
+        assertEquals(service.findAllFinishByItemByUser(1L, 2L), list);
     }
 }

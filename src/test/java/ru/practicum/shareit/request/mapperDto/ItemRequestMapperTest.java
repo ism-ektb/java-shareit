@@ -1,14 +1,19 @@
 package ru.practicum.shareit.request.mapperDto;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@SpringBootTest
 class ItemRequestMapperTest {
 
-    private final ItemRequestMapper mapper = new ItemRequestMapperImpl();
+    @Autowired
+    private  ItemRequestMapper mapper;
 
     @Test
     void longToModel() {
@@ -23,5 +28,19 @@ class ItemRequestMapperTest {
 
         Long l = null;
         assertNull(mapper.longToModel(l));
+    }
+
+    @Test
+    void dtoToModel() {
+        ItemRequest itemRequest = ItemRequest.builder().id(1L).build();
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder().id(1L).build();
+        assertEquals(mapper.dtoToModel(itemRequestDto), itemRequest);
+    }
+
+    @Test
+    void modelToDto() {
+        ItemRequest itemRequest = ItemRequest.builder().id(1L).build();
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder().id(1L).build();
+        assertEquals(mapper.modelToDto(itemRequest), itemRequestDto);
     }
 }

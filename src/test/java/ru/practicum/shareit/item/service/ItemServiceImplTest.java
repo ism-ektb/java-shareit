@@ -175,6 +175,23 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void getItems_whenDataIsTrue_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        BookingForItemDto bookingL = BookingForItemDto.builder().id(1L).build();
+        BookingForItemDto bookingN = BookingForItemDto.builder().id(2L).build();
+        when(bookingService.getLastByItem(anyLong())).thenReturn(bookingL);
+        when(bookingService.getNextByItem(anyLong())).thenReturn(bookingN);
+        when(repository.findItemsByOwnerEqualsOrderById(any(), any())).thenReturn(List.of(item));
+        when(commentRepository.findCommentsByItemId(anyLong())).thenReturn(null);
+        ItemWithBookingAndCommentDto itemDto = mapper.modelToDtoWithBooking(item);
+        itemDto.setLastBooking(bookingL);
+        itemDto.setNextBooking(bookingN);
+
+        assertEquals(service.getItems(userId, PageRequest.of(0, 10)), List.of(itemDto));
+
+    }
+
+    @Test
     void getItemOfText_whenTextIsBlank_thenReturnEmptyList() {
         assertEquals(service.getItemOfText(userId, "   ", PageRequest.of(0, 10)), new ArrayList<>());
         verifyNoInteractions(repository);
@@ -186,6 +203,14 @@ class ItemServiceImplTest {
         final NoFoundException e = assertThrows(NoFoundException.class, () ->
                 service.getItemOfText(userId, "текст", PageRequest.of(0, 10)));
         verifyNoInteractions(repository);
+    }
+
+    @Test
+    void getItemOfText_whenDataIsValid_thenReturnList() {
+        when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
+        when(repository.findItemsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailableIsTrueOrderById(
+                anyString(), anyString(), any())).thenReturn(List.of(item));
+        assertEquals(service.getItemOfText(userId, "текст", PageRequest.of(0, 10)), List.of(itemDto));
     }
 
     @Test

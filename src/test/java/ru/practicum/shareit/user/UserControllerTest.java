@@ -49,7 +49,7 @@ class UserControllerTest {
 
     @Test
     @SneakyThrows
-    void createUserDto_whenEmailIsNotValid_thenSaveUserAndReturnUser() {
+    void createUserDto_whenEmailIsNotValid_thenDontSaveUserAndThrowException() {
         UserDto userDto = UserDto.builder()
                 .name("имя")
                 .email("ee.e").build();

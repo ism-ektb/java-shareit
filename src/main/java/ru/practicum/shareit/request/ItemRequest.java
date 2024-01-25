@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "item_requests")
 @Getter
-@Setter
 @SuperBuilder
+@Setter
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode

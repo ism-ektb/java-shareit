@@ -1,27 +1,31 @@
 package ru.practicum.shareit.item.dtoMapper;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemForRequestDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.request.mapperDto.ItemRequestMapperImpl;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserWithoutEmailDto;
-import ru.practicum.shareit.user.mapperDto.UserMapperImpl;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 class ItemMapperTest {
 
-    private final ItemMapper mapper = new ItemMapperImpl(
-            new ItemRequestMapperImpl(), new UserMapperImpl());
+    @Autowired
+    private ItemMapper mapper;
 
     @Test
     void dtoToModel() {
-        ItemDto itemDto = ItemDto.builder().name("name").requestId(1L).build();
+        ItemDto itemDto = ItemDto.builder()
+                .name("name")
+                .owner(UserWithoutEmailDto.builder().id(1L).build()).requestId(1L).build();
         Item item = Item.builder()
                 .name("name")
+                .owner(User.builder().id(1L).build())
                 .request(ItemRequest.builder().id(1L).build())
                 .build();
         assertEquals(item, mapper.dtoToModel(itemDto));
@@ -98,5 +102,12 @@ class ItemMapperTest {
                         .build())
                 .build();
         assertEquals(itemForRequestDto, mapper.modelToDtoForRequest(item));
+    }
+
+    @Test
+    void modelToDtoWithBooking() {
+        Item item = Item.builder().id(1L).build();
+        ItemWithBookingAndCommentDto itemDto = ItemWithBookingAndCommentDto.builder().id(1L).build();
+        assertEquals(mapper.modelToDtoWithBooking(item), itemDto);
     }
 }

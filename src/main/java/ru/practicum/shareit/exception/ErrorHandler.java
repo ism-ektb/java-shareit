@@ -36,11 +36,6 @@ public class ErrorHandler {
         return new ErrResponse("Unknown state: " + e.getValue());
     }
 
-    @ExceptionHandler(FormatDataException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse onFormatError(final FormatDataException e) {
-        return new ErrorResponse(List.of(new Error("Error message", e.getMessage())));
-    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -8,8 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentInDto;
 import ru.practicum.shareit.comment.dto.CommentOutDto;
-import ru.practicum.shareit.exception.FormatDataException;
-import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 import ru.practicum.shareit.item.dto.OnCreateGroup;
@@ -37,7 +35,7 @@ public class ItemController {
      * Метод создания новой вещи
      *
      * @return возврашает объект с приваиным id
-     * @throws FormatDataException             если пользователь пытается добавить (изменить) чужие объекты
+     * @throws ru.practicum.shareit.exception.ValidationException если пользователь пытается добавить (изменить) чужие объекты
      * @throws MethodArgumentNotValidException если принятый ItemDto не прошел валидацию
      */
     @PostMapping
@@ -50,7 +48,7 @@ public class ItemController {
      * Метод создания новой вещи
      *
      * @return возврашает объект с приваиным id
-     * @throws FormatDataException если пользователь пытается добавить (изменить) чужие объекты
+     * @throws ru.practicum.shareit.exception.ValidationException если пользователь пытается добавить (изменить) чужие объекты
      */
     @PatchMapping("/{id}")
     public ItemDto updateItemDto(@RequestHeader("X-Sharer-User-Id") long userId,
@@ -63,7 +61,7 @@ public class ItemController {
      * Метод пролучения объекта из хранилища по id
      *
      * @param itemId id объекта класса Item
-     * @throws NoFoundException если объект с переданным id отсутствует в хранилище
+     * @throws ru.practicum.shareit.exception.ValidationException если объект с переданным id отсутствует в хранилище
      */
     @GetMapping("/{itemId}")
     public ItemWithBookingAndCommentDto getItemDtoById(@RequestHeader("X-Sharer-User-Id") long userId,

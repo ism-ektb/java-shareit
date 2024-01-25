@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.user.User;
 
@@ -26,4 +27,20 @@ class BookingMapperTest {
                 .bookerId(5L).build();
         assertEquals(bookingForItemDto, mapper.modelToDtoForItem(booking));
     }
+
+    @Test
+    void modelToDto() {
+        Booking booking = Booking.builder().id(1L).build();
+        BookingDto bookingDto = BookingDto.builder().id(1L).build();
+        assertEquals(mapper.modelToDto(booking), bookingDto);
+    }
+
+    @Test
+    void dtoToModel() {
+        Booking booking = Booking.builder().id(1L).build();
+        BookingDto bookingDto = BookingDto.builder().id(1L).build();
+        assertEquals(mapper.dtoToModel(bookingDto), booking);
+
+    }
+
 }

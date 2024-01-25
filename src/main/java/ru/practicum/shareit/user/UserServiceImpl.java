@@ -3,8 +3,8 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapperDto.UserListMapper;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, long id) {
         if ((userDto.getId() != null) && (userDto.getId() != id)) {
             log.warn("Юзер c id: {} не может изменить данные юзера: {}", id, userDto.toString());
-            throw new FormatDataException("Юзер c id: "
+            throw new ValidationException("Юзер c id: "
                     + id + " не может изменить данные юзера: "
                     + userDto.toString());
         }
