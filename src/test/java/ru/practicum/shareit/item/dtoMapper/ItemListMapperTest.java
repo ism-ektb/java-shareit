@@ -30,7 +30,6 @@ class ItemListMapperTest {
         Item item = Item.builder().id(1L).build();
         ItemDto itemDto = ItemDto.builder().id(1L).build();
         assertEquals(mapper.modelsToDtos(List.of(item)), List.of(itemDto));
-
     }
 
     @Test
@@ -38,7 +37,6 @@ class ItemListMapperTest {
         Item item = Item.builder().id(1L).build();
         ItemWithBookingAndCommentDto itemDto = ItemWithBookingAndCommentDto.builder().id(1L).build();
         assertEquals(mapper.modelsToDtoWithBookings(List.of(item)), List.of(itemDto));
-
     }
 
     @Test
@@ -46,6 +44,5 @@ class ItemListMapperTest {
         Item item = Item.builder().id(1L).build();
         ItemForRequestDto itemDto = ItemForRequestDto.builder().id(1L).build();
         assertEquals(mapper.modelsToDtosForRequest(List.of(item)), List.of(itemDto));
-
     }
 }

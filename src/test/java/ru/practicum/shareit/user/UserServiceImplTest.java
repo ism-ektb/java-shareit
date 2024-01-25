@@ -29,14 +29,16 @@ class UserServiceImplTest {
     private UserListMapper listMapper;
 
     @Test
-    void createUser() {
+    void createUser_whenDataIsTrue_thenSaveAndReturnUser() {
         User user = User.builder().id(1L).build();
+        UserDto userDto = UserDto.builder().name("Имя").build();
         when(repository.save(any())).thenReturn(user);
-        assertEquals(service.createUser(UserDto.builder().build()),mapper.modelToDto(user));
+        assertEquals(service.createUser(userDto),mapper.modelToDto(user));
+        verify(repository).save(mapper.dtoToModel(userDto));
     }
 
     @Test
-    void updateUser() {
+    void updateUser_whenDataIsTrue_thenSaveAndReturnUser() {
         UserDto userDto = UserDto.builder().name("Новое Имя").build();
         User user = User.builder().id(1L).name("Имя").build();
         User newUser = User.builder().id(1L).name("Новое Имя").build();
@@ -52,14 +54,14 @@ class UserServiceImplTest {
     }
 
     @Test
-    void findAllUsers() {
+    void findAllUsers_whenDataIsTrue_thenReturnList() {
         User user = User.builder().id(1L).build();
         when(repository.findAll()).thenReturn(List.of(user));
         assertEquals(service.findAllUsers(), listMapper.modelsToDtos(List.of(user)));
     }
 
     @Test
-    void findUserById() {
+    void findUserById_whenDataIsTrue_thenReturnUser() {
         User user = User.builder().id(1L).build();
         when(repository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         assertEquals(service.findUserById(1L), mapper.modelToDto(user));
@@ -80,10 +82,9 @@ class UserServiceImplTest {
     }
 
     @Test
-    void findUserByIdForValid() {
+    void findUserByIdForValid_whenDataIsTrue_thenReturnUser() {
         User user = User.builder().id(1L).build();
         when(repository.findById(anyLong())).thenReturn(Optional.ofNullable(user));
         assertEquals(service.findUserByIdForValid(1L), user);
-
     }
 }

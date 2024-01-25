@@ -15,7 +15,7 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 
 /**
- * TODO Sprint add-item-requests.
+ * Controller item-requests.
  */
 @RestController
 @RequestMapping(path = "/requests")

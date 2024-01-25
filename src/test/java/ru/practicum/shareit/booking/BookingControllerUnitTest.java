@@ -20,7 +20,6 @@ class BookingControllerUnitTest {
     @Autowired
     private BookingController controller;
 
-
     @Test
     void createBookingDto() {
         SimpleBookingDto simpleBookingDto = SimpleBookingDto.builder()
@@ -38,17 +37,5 @@ class BookingControllerUnitTest {
         BookingDto bookingDto = BookingDto.builder().id(1L).build();
         when(service.approved(anyLong(), anyLong(), any())).thenReturn(bookingDto);
         assertEquals(controller.approved(1L, 1L, true), bookingDto);
-    }
-
-    @Test
-    void getBookingDtoById() {
-    }
-
-    @Test
-    void getBookingDtoByState() {
-    }
-
-    @Test
-    void getBookingDtoByOwner() {
     }
 }

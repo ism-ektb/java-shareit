@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * TODO Sprint add-item-requests.
+ * POJO item-requests.
  */
 @Entity
 @Table(name = "item_requests")

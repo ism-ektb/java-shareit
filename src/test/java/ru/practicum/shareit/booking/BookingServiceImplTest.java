@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.*;
 import static ru.practicum.shareit.booking.BookingStatus.*;
 
 @SpringBootTest
-@Slf4j
 class BookingServiceImplTest {
     @Autowired
     private BookingService service;
@@ -238,27 +236,24 @@ class BookingServiceImplTest {
                 .item(Item.builder()
                         .owner(user).build())
                 .status(APPROVED).build();
-        log.info("booking: {} testBooking {}", booking, testBooking);
         when(repository.findById(anyLong())).thenReturn(Optional.ofNullable(booking));
         when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
         when(repository.save(any())).thenReturn(testBooking);
         assertEquals(service.approved(3L, 4L, true), mapper.modelToDto(testBooking));
         verify(repository).save(testBooking);
-
     }
 
     @Test
-    void findAllForBooker() {
+    void findAllForBooker_whenTrueDate_thenReturnList() {
         when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
         List<Booking> list = List.of(Booking.builder().id(1L).build());
         when(repository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any()))
                 .thenReturn(list);
         assertEquals(service.findAllForBooker(2L, CURRENT, PageRequest.of(0, 10)), listMapper.modelsToDtos(list));
-
     }
 
     @Test
-    void findAllForOwner() {
+    void findAllForOwner_whenTrueDate_thenReturnList() {
         when(userService.findUserByIdForValid(anyLong())).thenReturn(user);
         List<Booking> list = List.of(Booking.builder().id(1L).build());
         when(repository.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(anyLong(), any(), any(), any()))
@@ -348,7 +343,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getLastByItem() {
+    void getLastByItem_whenTrueDate_thenReturnBooking() {
         List<Booking> list = List.of(Booking.builder().id(1L).build());
         when(repository.findAllLast(anyLong(), any(), any(), any()))
                 .thenReturn(list);
@@ -356,7 +351,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getNextByItem() {
+    void getNextByItem_whenTrueDate_thenReturnBooking() {
         List<Booking> list = List.of(Booking.builder().id(1L).build());
         when(repository.findAllNext(anyLong(), any(), any(), any()))
                 .thenReturn(list);

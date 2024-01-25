@@ -14,7 +14,6 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository repository;
 
-
     @Test
     public void saveUserAndReturnWithId() {
         User user = User.builder().name("Имя").email("e@e.e").build();
@@ -28,6 +27,5 @@ public class UserRepositoryTest {
         User user3 = User.builder().name("Имя2").email("e@e.e").build();
         final DataIntegrityViolationException e =
                 assertThrows(DataIntegrityViolationException.class, () -> repository.save(user3));
-
     }
 }

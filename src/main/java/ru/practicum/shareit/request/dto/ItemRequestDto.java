@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
- * TODO Sprint add-item-requests.
+ * main DTO requests.
  */
 @Data
 @Builder

@@ -44,7 +44,6 @@ class BookingControllerTest {
         bookingDto = BookingDto.builder()
                 .item(ItemDto.builder().id(1L).build())
                 .build();
-
     }
 
     @Test

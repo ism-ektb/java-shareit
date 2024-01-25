@@ -70,7 +70,6 @@ class ItemServiceImplTest {
                 .text("коммент")
                 .item(Item.builder().name("Описание").owner(user).build())
                 .build();
-
     }
 
     @Test
@@ -188,7 +187,6 @@ class ItemServiceImplTest {
         itemDto.setNextBooking(bookingN);
 
         assertEquals(service.getItems(userId, PageRequest.of(0, 10)), List.of(itemDto));
-
     }
 
     @Test

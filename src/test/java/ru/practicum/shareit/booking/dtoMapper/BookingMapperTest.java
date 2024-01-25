@@ -40,7 +40,5 @@ class BookingMapperTest {
         Booking booking = Booking.builder().id(1L).build();
         BookingDto bookingDto = BookingDto.builder().id(1L).build();
         assertEquals(mapper.dtoToModel(bookingDto), booking);
-
     }
-
 }
