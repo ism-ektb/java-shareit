@@ -1,14 +1,13 @@
 package ru.practicum.shareit.item.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.comment.dto.CommentInDto;
 import ru.practicum.shareit.comment.dto.CommentOutDto;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithBookingAndCommentDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ItemService {
     /**
@@ -16,46 +15,39 @@ public interface ItemService {
      *
      * @param itemDto новый объект
      * @param userId  id зарегистрированного пользователя добавляющего объект
-     * @throws FormatDataException если переданные в метод данные не соответствуют
-     *                             "бизнес-логике"
      */
-    ItemDto createItem(ItemDto itemDto, Optional<Long> userId);
+    ItemDto createItem(ItemDto itemDto, long userId);
 
     /**
      * Метод для обновления данных об объекте в базе данных
      *
      * @param itemDto данные для обновления
-     * @param itemId id обновляемого объекта
+     * @param itemId  id обновляемого объекта
      * @param userId  id зарегистрированного пользователя обновляющего объект
-     * @throws FormatDataException если переданные в метод данные не соответствуют
-     *                             "бизнес-логике"
      */
-    ItemDto updateItem(Optional<Long> userId, long itemId, ItemDto itemDto);
+    ItemDto updateItem(long userId, long itemId, ItemDto itemDto);
 
     /**
      * Метод пролучения объекта из хранилища по id
      *
      * @param itemId id объекта класса Item
      * @throws NoFoundException если объект с переданным id отсутствует в хранилище
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
-    ItemWithBookingAndCommentDto getItemOfId(Optional<Long> userId, long itemId);
+    ItemWithBookingAndCommentDto getItemOfId(long userId, long itemId);
 
     /**
      * Метод возвращает список объектов у которых поле Owner соответствет преданному параметру
      *
      * @param userId id объекта класса User
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
-    List<ItemWithBookingAndCommentDto> getItems(Optional<Long> userId);
+    List<ItemWithBookingAndCommentDto> getItems(long userId, Pageable pageRequest);
 
     /**
      * Метод возвращает список объектов из хранилища в поле name и description
      * которых встречается подстрока передаваемая в качестве параметра.
      * Если ничего не найдено, то возвращается пустой список
-     * @throws FormatDataException если пользователь запрашивающий данные не зарегистрирован
      */
-    List<ItemDto> getItemOfText(Optional<Long> userId, String text);
+    List<ItemDto> getItemOfText(long userId, String text, Pageable pageRequest);
 
-    CommentOutDto addComment(Optional<Long> userId, Long itemId, CommentInDto commentInDto);
+    CommentOutDto addComment(long userId, long itemId, CommentInDto commentInDto);
 }

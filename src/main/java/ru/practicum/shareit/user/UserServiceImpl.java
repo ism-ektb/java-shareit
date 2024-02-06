@@ -3,8 +3,8 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.FormatDataException;
 import ru.practicum.shareit.exception.NoFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapperDto.UserListMapper;
 import ru.practicum.shareit.user.mapperDto.UserMapper;
@@ -41,15 +41,11 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, long id) {
         if ((userDto.getId() != null) && (userDto.getId() != id)) {
             log.warn("Юзер c id: {} не может изменить данные юзера: {}", id, userDto.toString());
-            throw new FormatDataException("Юзер c id: "
+            throw new ValidationException("Юзер c id: "
                     + id + " не может изменить данные юзера: "
                     + userDto.toString());
         }
-        User oldUser = repository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("User c id: {} не существует", id);
-                    throw new NoFoundException("User c id: " + id + " не существует");
-                });
+        User oldUser = findUserByIdForValid(id);
         User newUser = userMapper.dtoToModel(userDto);
 
         User user = repository.save(
@@ -58,7 +54,6 @@ public class UserServiceImpl implements UserService {
                         .name(newUser.getName() == null ? oldUser.getName() : newUser.getName())
                         .email(newUser.getEmail() == null ? oldUser.getEmail() : newUser.getEmail())
                         .build());
-
         return userMapper.modelToDto(user);
     }
 
@@ -92,5 +87,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public User findUserByIdForValid(long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("User c id: {} не существует", id);
+                    throw new NoFoundException("User c id: " + id + " не существует");
+                });
     }
 }

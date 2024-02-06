@@ -7,6 +7,7 @@ import ru.practicum.shareit.user.dto.UserWithoutEmailDto;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     User dtoToModel(UserDto userDto);
 
     UserDto modelToDto(User user);
@@ -14,12 +15,5 @@ public interface UserMapper {
     UserWithoutEmailDto modelToDtoWithoutEmail(User user);
 
     User dtoWithoutEmailToModel(UserWithoutEmailDto userWithoutEmailDto);
-/*
-    @Mapping(target = "userId", source = "user.getId()")
-    Long modelToIdDto(User user);
-    @Mapping(target = "user.id", source = "userId")
-    User idDtoToModel(Long userId);
 
-
- */
 }

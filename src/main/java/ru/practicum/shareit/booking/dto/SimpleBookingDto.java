@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import ru.practicum.shareit.annotation.ValidStartIsBeforeEnd;
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 @ValidStartIsBeforeEnd
+@Builder
+@EqualsAndHashCode
 public class SimpleBookingDto {
     @NotNull
     @Min(1)

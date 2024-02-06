@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.user.dto.UserWithoutEmailDto;
 
 import javax.validation.Valid;
@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@EqualsAndHashCode
 public class ItemDto {
 
     private long id;
@@ -25,5 +26,5 @@ public class ItemDto {
     private Boolean available;
     @Valid
     private UserWithoutEmailDto owner;
-    private ItemRequestDto request;
+    private Long requestId;
 }

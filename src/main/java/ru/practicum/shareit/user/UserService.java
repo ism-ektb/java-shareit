@@ -40,4 +40,6 @@ public interface UserService {
      * @throws NoFoundException передан id не существующего объекта
      */
     void deleteUser(long id);
+
+    User findUserByIdForValid(long id);
 }

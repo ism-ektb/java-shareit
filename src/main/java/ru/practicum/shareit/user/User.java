@@ -14,7 +14,7 @@ import javax.persistence.*;
 @SuperBuilder
 @NoArgsConstructor
 @ToString
-@EqualsAndHashCode(exclude = {"email"})
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +22,5 @@ public class User {
     @Column(name = "name_user")
     private String name;
     @Column(unique = true)
-    @ToString.Exclude
     private String email;
 }
