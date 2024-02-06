@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS comments, requests, bookings, items, users CASCADE ;
+
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS as IDENTITY PRIMARY KEY,
     name_user VARCHAR(100),
@@ -11,7 +13,6 @@ CREATE TABLE IF NOT EXISTS item_requests (
     requestor_id BIGINT,
     created TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY(requestor_id) REFERENCES users(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -21,10 +22,8 @@ CREATE TABLE IF NOT EXISTS items (
     available BOOLEAN,
     owner_id BIGINT,
     request_id BIGINT,
-    CONSTRAINT fk_owner_id FOREIGN KEY(owner_id) REFERENCES users(id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_owner_id FOREIGN KEY(owner_id) REFERENCES users(id),
     CONSTRAINT fk_reqiests_id FOREIGN KEY(request_id) REFERENCES item_requests(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -34,10 +33,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     item_id BIGINT,
     booker_id BIGINT,
     status VARCHAR(50),
-    CONSTRAINT fr_item_id FOREIGN KEY(item_id) REFERENCES items(id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fr_item_id FOREIGN KEY(item_id) REFERENCES items(id),
     CONSTRAINT fr_booker_id FOREIGN KEY(booker_id) REFERENCES users(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS comments (
@@ -46,8 +43,6 @@ CREATE TABLE IF NOT EXISTS comments (
     item_id BIGINT,
     author_id BIGINT,
     created TIMESTAMP,
-    CONSTRAINT fr_item_comment_id FOREIGN KEY(item_id) REFERENCES items(id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fr_item_comment_id FOREIGN KEY(item_id) REFERENCES items(id),
     CONSTRAINT fr_author_id FOREIGN KEY(author_id) REFERENCES users(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
 );
